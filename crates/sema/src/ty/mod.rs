@@ -185,6 +185,11 @@ impl<'gcx> Gcx<'gcx> {
         self.interner.arena.get_or_default()
     }
 
+    /// Returns the HIR.
+    pub fn hir(self) -> &'gcx Hir<'gcx> {
+        &self.hir
+    }
+
     pub fn bump(self) -> &'gcx bumpalo::Bump {
         &self.arena().bump
     }

@@ -1,4 +1,4 @@
-use crate::hir::{Arena, Hir, SourceId};
+use crate::hir::{Arena, SourceId};
 use rayon::prelude::*;
 use solar_ast as ast;
 use solar_data_structures::{
@@ -90,8 +90,11 @@ impl<'sess> ParsingContext<'sess> {
         crate::parse_and_resolve(self)
     }
 
-    pub fn parse_and_lower_to_hir(self, hir_arena: &Arena) -> Result<Hir<'_>> {
-        crate::parse_and_lower_to_hir(self, hir_arena)
+    pub fn parse_and_lower(
+        self,
+        hir_arena: &'sess ThreadLocal<Arena>,
+    ) -> Result<Option<Gcx<'sess>>> {
+        crate::parse_and_lower(self, Some(hir_arena))
     }
 
     /// Parses all the loaded sources, recursing into imports.
@@ -235,6 +238,7 @@ macro_rules! resolve_imports {
             })
     }};
 }
+use crate::ty::Gcx;
 use resolve_imports;
 
 fn escape_import_path(path_str: &str) -> Option<Cow<'_, [u8]>> {

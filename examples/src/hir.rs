@@ -2,6 +2,7 @@ use solar::{
     interface::{diagnostics::EmittedDiagnostics, Session},
     sema::{
         hir::{Arena, ContractId},
+        thread_local::ThreadLocal,
         ParsingContext,
     },
 };
@@ -19,14 +20,20 @@ fn main() -> Result<(), EmittedDiagnostics> {
     // Counter will be parsed, even if not explicitly provided, since it is a dependency.
     let _ = sess.enter_parallel(|| -> solar::interface::Result<()> {
         // Set up the parser.
-        let hir_arena = Arena::new();
+        let hir_arena = ThreadLocal::<Arena>::new();
         let mut parsing_context = ParsingContext::new(&sess);
         parsing_context.load_files(paths)?;
-        let hir = parsing_context.parse_and_lower_to_hir(&hir_arena)?;
-        let counter_contract = hir.contract(ContractId::new(0));
-        assert_eq!(counter_contract.name.to_string(), "Counter");
-        let another_counter_contract = hir.contract(ContractId::new(1));
-        assert_eq!(another_counter_contract.name.to_string(), "AnotherCounter");
+
+        if let Some(gcx) = parsing_context.parse_and_lower(&hir_arena)? {
+            for contract in gcx.hir().contracts() {
+                println!("contract: {}", contract.name);
+            }
+            let counter_contract = gcx.hir().contract(ContractId::new(0));
+            assert_eq!(counter_contract.name.to_string(), "Counter");
+            let another_counter_contract = gcx.hir().contract(ContractId::new(1));
+            assert_eq!(another_counter_contract.name.to_string(), "AnotherCounter");
+        }
+
         Ok(())
     });
 
