@@ -50,10 +50,10 @@ pub fn parse_and_resolve(pcx: ParsingContext<'_>) -> Result<()> {
 
 /// Parses and lowers to HIR, recursing into imports. If called with an external HIR arena then
 /// returns the global compilation context (which can be used to access HIR).
-pub fn parse_and_lower<'hir>(
-    pcx: ParsingContext<'hir>,
-    hir_arena: Option<&'hir ThreadLocal<Arena>>,
-) -> Result<Option<Gcx<'hir>>> {
+pub fn parse_and_lower<'sess>(
+    pcx: ParsingContext<'sess>,
+    hir_arena: Option<&'sess ThreadLocal<Arena>>,
+) -> Result<Option<Gcx<'sess>>> {
     let sess = pcx.sess;
 
     if pcx.sources.is_empty() {
