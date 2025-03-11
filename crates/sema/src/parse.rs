@@ -1,4 +1,7 @@
-use crate::hir::{Arena, SourceId};
+use crate::{
+    hir::{Arena, SourceId},
+    ty::Gcx,
+};
 use rayon::prelude::*;
 use solar_ast as ast;
 use solar_data_structures::{
@@ -238,7 +241,6 @@ macro_rules! resolve_imports {
             })
     }};
 }
-use crate::ty::Gcx;
 use resolve_imports;
 
 fn escape_import_path(path_str: &str) -> Option<Cow<'_, [u8]>> {
